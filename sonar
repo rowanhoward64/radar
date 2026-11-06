@@ -1,0 +1,54 @@
+#include <Servo.h>
+const int trigPin = 3; //pin declarations and assigning variables
+const int echoPin = 4;
+int pos = 0;
+int range = 50;
+int increment = 2;
+Servo myservo;
+void setup() {
+  Serial.begin(9600);
+  myservo.attach(2);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+}
+
+
+
+void loop() {
+  int closestpos = 90;
+  float closest = 1000000;
+  for (int i = 0; i<=180; i += 2 ) {
+    myservo.write(pos);              
+    delay(10);                      // waits for the servo to reach the position
+    float current = Distance();
+    if (current < closest){ //logic to find the closest position
+      closestpos = pos;
+      closest = current;
+    }
+    pos += increment; //add increment for next servo position
+  }
+  if (closest < range){
+    myservo.write(closestpos); //servo 'looks' at closest position
+    delay(500); 
+  }
+  increment = 0-increment; //increment flips between positive and negative to result in occilating motion of the servo
+  Serial.println(increment);
+
+}
+
+
+
+int Distance(){ //fuction to find distance and output it to the serial monitor
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);-
+
+  float duration = pulseIn(echoPin, HIGH);
+  float distance = (duration*.0343)/2;
+  Serial.print("Distance: ");
+  Serial.println(distance);
+  return distance;
+  delay(50);
+}
